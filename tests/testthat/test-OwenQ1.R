@@ -37,8 +37,24 @@ test_that("OwenQ1 - bivariate Student", {
   #      NProbability[
   #        (x+delta1)/Sqrt[y/nu] >= t1 && (x+delta2)/Sqrt[y/nu] <=t2, {x \[Distributed]
   #          NormalDistribution[], y\[Distributed]ChiSquareDistribution[nu]}]]
-
-
 })
 
-# NProbability[]
+test_that("OwenQ2 - bivariate Student", {
+  t1 <- 2; t2 <- 1; delta1 <- 3; delta2 <- 2
+  nu <- 6
+  R <- sqrt(nu)*(delta1 - delta2)/(t1-t2)
+  owen <- - (ptOwen(t2, nu, delta2) - OwenQ1(nu, t2, delta2, R)) +
+             (ptOwen(t1, nu, delta1) - OwenQ1(nu, t1, delta1, R))
+  wolfram <- 0.03257737810540227
+  expect_equal(owen, wolfram, tolerance=1e-10)
+  #
+  nu <- 5
+  R <- sqrt(nu)*(delta1 - delta2)/(t1-t2)
+  owen <- - (ptOwen(t2, nu, delta2) - OwenQ1(nu, t2, delta2, R)) +
+    (ptOwen(t1, nu, delta1) - OwenQ1(nu, t1, delta1, R))
+  wolfram <- 0.0353568969628651
+  expect_equal(owen, wolfram, tolerance=1e-9)
+})
+
+
+
