@@ -7,8 +7,10 @@ test_that("OwenQ1 for large R equals ptOwen", {
 })
 
 test_that("OwenQ1 for t=+Inf does not depend on delta", {
-  expect_true(OwenQ1(5, Inf, 2, 100) == OwenQ1(5, Inf, 3, 100))
-  expect_true(OwenQ1(6, Inf, 2, 100) == OwenQ1(6, Inf, 3, 100))
+  expect_true(OwenQ1(5, Inf, 2, 2) == OwenQ1(5, Inf, 3, 2))
+  expect_true(OwenQ1(6, Inf, 2, 2) == OwenQ1(6, Inf, 3, 2))
+  # nu=2 => moment truncated normal
+  expect_equal(OwenQ1(2, Inf, 1, 2), sqrt(2*pi)*(dnorm(0)-dnorm(2)), tolerance=1e-15)
 })
 
 test_that("OwenQ1 for t=-Inf equals 0", {
