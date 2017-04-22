@@ -25,17 +25,19 @@ OwenQ1 <- function(nu, t, delta, R){
   if(isNotPositiveInteger(nu)){
     stop("`nu` must be an integer >=1.")
   }
-  if(is.infinite(t) || any(is.infinite(delta)) || any(is.infinite(R))){
-    stop("Parameters must be finite.")
+  if(any(is.infinite(R))){
+    stop("R must be finite.")
   }
   a <- sign(t)*sqrt(t*t/nu)
   b <- nu/(nu+t*t)
   sB <- sqrt(b)
+  ab <- ifelse(is.infinite(t), 0, a*b)
+  asB <- ifelse(is.infinite(t), sign(t), a*sB)
   if(nu==1){
     C <- pnorm(R) - (delta>=0) + 2*OwenT(delta*sB, a) -
       vapply(seq_len(J), function(i){
         2*OwenT(R[i], (a*R[i]-delta[i])/R[i]) +
-          2*OwenT(delta[i]*sB, (delta[i]*a*b-R[i])/b/delta[i])
+          2*OwenT(delta[i]*sB, (delta[i]*ab-R[i])/b/delta[i])
       }, FUN.VALUE=numeric(1L))
     return(C)
   }
@@ -43,16 +45,16 @@ OwenQ1 <- function(nu, t, delta, R){
   n <- nu-1L
   H <- M <- matrix(numeric(n*J), nrow=n)
   H[1L,] <- -dnorm(R) * pnorm (a*R-delta)
-  M[1L,] <- a*sB*dnorm(delta*sB)*(pnorm(delta*a*sB)-pnorm((delta*a*b-R)/sB))
+  M[1L,] <- asB*dnorm(delta*sB)*(pnorm(delta*asB)-pnorm((delta*ab-R)/sB))
   if(nu>=3L){
     H[2L,] <- R * H[1L,]
-    M[2L,] <- b*(delta*a*M[1L,] +
-                   a*dnorm(delta*sB)*(dnorm(delta*a*sB)-dnorm((delta*a*b-R)/sB)))
+    M[2L,] <- ab*(delta*M[1L,] +
+                   dnorm(delta*sB)*(dnorm(delta*asB)-dnorm((delta*ab-R)/sB)))
     if(nu>=4L){
       A <- numeric(n)
       L <- matrix(numeric((n-2L)*J), ncol=J)
       A[1L:2L] <- 1
-      L[1L,] <- a * b * R * dnorm(R) * dnorm(a*R-delta) / 2
+      L[1L,] <- ab * R * dnorm(R) * dnorm(a*R-delta) / 2
       for(k in 3L:n){
         A[k] <- 1/(k-1L)/A[k-1L]
       }
@@ -63,7 +65,7 @@ OwenQ1 <- function(nu, t, delta, R){
       }
       for(k in 3L:n){
         H[k,] <- A[k] * R * H[k-1L,]
-        M[k,] <- (k-2L)/(k-1L) * b * (A[k-2L] * delta * a * M[k-1L,] + M[k-2L,]) -
+        M[k,] <- (k-2L)/(k-1L) * ab * (A[k-2L] * delta * M[k-1L,] + M[k-2L,]) -
           L[k-2L,]
       }
     }
@@ -72,7 +74,7 @@ OwenQ1 <- function(nu, t, delta, R){
     C <- pnorm(R) - (delta>=0) + 2*OwenT(delta*sB, a) -
       vapply(seq_len(J), function(i){
         2*OwenT(R[i], (a*R[i]-delta[i])/R[i]) +
-          2*OwenT(delta[i]*sB, (delta[i]*a*b-R[i])/b/delta[i])
+          2*OwenT(delta[i]*sB, (delta[i]*ab-R[i])/b/delta[i])
       }, FUN.VALUE=numeric(1L))
     indices <- seq(2L, n, by=2L)
     return(C + 2*.colSums(H[indices,]+M[indices,], m=length(indices), n=J))
