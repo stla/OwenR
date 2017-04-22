@@ -9,13 +9,16 @@
 pOwen4 <- function(nu, t1, t2, delta1, delta2){
   J <- length(delta1)
   if(J != length(delta1)){
-    stop("`delta1`, `delta2` and `R` must have the same length.")
+    stop("`delta1` and `delta2` must have the same length.")
   }
   if(any(delta1<=delta2)){
-    stop("delta1 must be >delta2.")
+    stop("`delta1` must be >`delta2`.")
   }
   if(any(t1<=t2)){
-    stop("t1 must be >t2.")
+    stop("`t1` must be >`t2`.")
+  }
+  if(any(is.infinite(t1) | is.infinite(t2))){
+    stop("`t1` and `t2` must be finite.")
   }
   if(isNotPositiveInteger(nu)){
     stop("`nu` must be an integer >=1.")
