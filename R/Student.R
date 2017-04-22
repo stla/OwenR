@@ -19,6 +19,9 @@ Ssequences <- function(n, a, b, d){
 #' @param delta noncentrality parameter
 #' @return Numeric value, the CDF evaluated at \code{q}.
 #' @export
+#' @importFrom stats pnorm dnorm
+#' @note The results are theoretically exact when the number of degrees of freedom is even.
+#' When odd, the procedure resorts to the Owen T-function.
 #' @examples
 #' ptOwen(2, 3) - pt(2, 3)
 #' ptOwen(2, 3, delta=1) - pt(2, 3, ncp=1)
@@ -29,7 +32,7 @@ ptOwen <- function(q, nu, delta=0){
   if(is.infinite(q) || is.infinite(delta)){
     stop("Parameters must be finite.")
   }
-  a <- q/sqrt(nu)
+  a <- sign(q)*sqrt(q*q/nu)
   b <- nu/(nu+q*q)
   nu <- as.integer(nu)
   if(nu==2L){
