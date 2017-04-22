@@ -32,7 +32,7 @@ OwenQ1 <- function(nu, t, delta, R){
   b <- nu/(nu+t*t)
   sB <- sqrt(b)
   ab <- ifelse(is.infinite(t), 0, a*b)
-  asB <- ifelse(is.infinite(t), sign(t), a*sB)
+  asB <- ifelse(is.infinite(t), sign(t), sign(t)*sqrt(t*t/(nu+t*t)))
   if(nu==1){
     C <- pnorm(R) - (delta>=0) + 2*OwenT(delta*sB, a) -
       vapply(seq_len(J), function(i){
@@ -65,7 +65,7 @@ OwenQ1 <- function(nu, t, delta, R){
       }
       for(k in 3L:n){
         H[k,] <- A[k] * R * H[k-1L,]
-        M[k,] <- (k-2L)/(k-1L) * ab * (A[k-2L] * delta * M[k-1L,] + M[k-2L,]) -
+        M[k,] <- (k-2L)/(k-1L) * (ab * A[k-2L] * delta * M[k-1L,] + b*M[k-2L,]) -
           L[k-2L,]
       }
     }
