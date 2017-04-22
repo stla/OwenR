@@ -17,6 +17,7 @@ Ssequences <- function(n, a, b, d){
 #' @param q quantile
 #' @param nu integer greater than \eqn{1}, the number of degrees of freedom
 #' @param delta noncentrality parameter
+#' @param jmax,cut.point passed to \code{\link{OwenT}} (when \code{nu} is odd)
 #' @return Numeric value, the CDF evaluated at \code{q}.
 #' @export
 #' @importFrom stats pnorm dnorm
@@ -25,7 +26,7 @@ Ssequences <- function(n, a, b, d){
 #' @examples
 #' ptOwen(2, 3) - pt(2, 3)
 #' ptOwen(2, 3, delta=1) - pt(2, 3, ncp=1)
-ptOwen <- function(q, nu, delta=0){
+ptOwen <- function(q, nu, delta=0, jmax=50L, cut.point=8){
   if(isNotPositiveInteger(nu)){
     stop("`nu` must be an integer >=1.")
   }
@@ -43,7 +44,7 @@ ptOwen <- function(q, nu, delta=0){
   }
   if(nu%%2L==1L){
     sB <- sqrt(b)
-    C <- pnorm(-delta*sB) + 2*OwenT(delta*sB,a)
+    C <- pnorm(-delta*sB) + 2*.OwenT(delta*sB,a, jmax=jmax, cut.point=cut.point)
     if(nu==1L){
       return(C)
     }

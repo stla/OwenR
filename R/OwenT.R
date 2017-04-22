@@ -1,31 +1,53 @@
-T.int <- function(h, a, jmax, cut.point) {
+OwenT01 <- function(h, a, jmax, cut.point) {
   # fui <- function(h, i)
   #   #(h ^ (2 * i)) / ((2 ^ i) * gamma(i + 1))
   #   exp(2*i*log(h) - i*log(2) - lgamma(i+1))
-  seriesL <- seriesH <-  NULL
+  seriesL <- seriesH <- NULL
   i <- 0L:jmax
   low <- (h <= cut.point)
   hL <- h[low]
   hH <- h[!low]
   L <- length(hL)
   if (L > 0L) {
-    b <- cbind(1, outer(hL, 1L:jmax, function(h,i) exp(2*i*log(h) - i*log(2) - lgamma(i+1L))))
+    b <- cbind(1, outer(hL, 1L:jmax,
+                        function(h,i) exp(2*i*log(h) - i*log(2) - lgamma(i+1L))))
     cumb <- apply(b, 1L, cumsum)
     b1 <- exp(-0.5 * hL ^ 2) * t(cumb)
     matr <- matrix(1, jmax + 1L, L) - t(b1)
-    jk <- rep(c(1L,-1L), jmax)[1L:(jmax + 1L)] / (2 * i + 1)
+    jk <- rep(c(1L,-1L), jmax)[1L:(jmax + 1L)] / (2*i+1)
     matr <- t(matr * jk) %*% a ^ (2 * i + 1)
-    seriesL <- (atan(a) - as.vector(matr)) / (2 * pi)
+    seriesL <- (atan(a) - as.vector(matr)) / (2*pi)
   }
   if (length(hH))
-    seriesH <- atan(a) * exp(-0.5 * (hH ^ 2) * a / atan(a)) *
-      (1 + 0.00868 * (hH * a) ^ 4) / (2 * pi)
+    seriesH <- atan(a) * exp(-0.5 * (hH*hH) * a / atan(a)) *
+      (1 + 0.00868 * (hH * a)^4) / (2*pi)
   series <- c(seriesL, seriesH)
-  id <- c((1:length(h))[low], (1:length(h))[!low])
+  #id <- c((1:length(h))[low], (1:length(h))[!low])
+  id <- seq_along(h)[c(low,!low)]
   series[id] <- series
   series
 }
 
+.OwenT <- function (h, a, jmax, cut.point)
+{
+  aa <- abs(a)
+  ah <- abs(h)
+  if (aa == Inf)
+    return(sign(a) * 0.5 * pnorm(-ah))
+  if (aa == 0)
+    return(rep(0, length(h)))
+  na <- is.na(h)
+  inf <- ah == Inf
+  ah <- replace(ah, na|inf, 0)
+  if (aa <= 1)
+    owen <- OwenT01(ah, aa, jmax, cut.point)
+  else
+    owen <- (0.5 * pnorm(ah) + pnorm(aa*ah) * (0.5 - pnorm(ah)) -
+               OwenT01(aa*ah, 1/aa, jmax, cut.point))
+  owen <- replace(owen, na, NA)
+  owen <- replace(owen, inf, 0)
+  return(owen * sign(a))
+}
 
 #' @title Owen T-function
 #' @description Evaluates the Owen T-function.
@@ -49,32 +71,13 @@ T.int <- function(h, a, jmax, cut.point) {
 #' OwenT(1,10000) - (1-pnorm(abs(1)))/2
 #' OwenT(1,Inf) == (1-pnorm(abs(1)))/2
 #' @export
-OwenT <- function (h,
-                   a,
-                   jmax = 50L,
-                   cut.point = 8)
+OwenT <- function (h, a, jmax = 50L, cut.point = 8)
 {
-  if (!is.vector(a) | length(a) > 1)
+  if (!is.vector(a) || length(a) > 1L)
     stop("'a' must be a vector of length 1")
   if (!is.vector(h))
     stop("'h' must be a vector")
-  aa <- abs(a)
-  ah <- abs(h)
-  if (is.na(aa))
+  if (is.na(a))
     stop("parameter 'a' is NA")
-  if (aa == Inf)
-    return(sign(a) * 0.5 * pnorm(-ah))
-  if (aa == 0)
-    return(rep(0, length(h)))
-  na <- is.na(h)
-  inf <- (ah == Inf)
-  ah <- replace(ah, (na | inf), 0)
-  if (aa <= 1)
-    owen <- T.int(ah, aa, jmax, cut.point)
-  else
-    owen <- (0.5 * pnorm(ah) + pnorm(aa * ah) * (0.5 - pnorm(ah)) -
-               T.int(aa * ah, (1 / aa), jmax, cut.point))
-  owen <- replace(owen, na, NA)
-  owen <- replace(owen, inf, 0)
-  return(owen * sign(a))
+  return(.OwenT(h, a, jmax, cut.point))
 }

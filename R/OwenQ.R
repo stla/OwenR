@@ -5,6 +5,7 @@
 #' @param t finite number, positive or negative
 #' @param delta vector of finite numbers, with the same length as \code{R}
 #' @param R (upper bound of the integral) vector of finite positive numbers, with the same length as \code{delta}
+#' @param jmax,cut.point passed to \code{\link{OwenT}} (when \code{nu} is odd)
 #' @return A vector of numbers between \eqn{0} and \eqn{1}, the values of the integral from \eqn{0} to \eqn{R}.
 #' @export
 #' @importFrom stats pnorm dnorm
@@ -12,9 +13,9 @@
 #' When odd, the procedure resorts to the Owen T-function.
 #' @examples
 #' # OwenQ1(nu, t, delta, Inf) = pt(t, nu, delta)
-#' OwenQ1(4, 3, 2, 100)
-#' ptOwen(3, 4, 2)
-OwenQ1 <- function(nu, t, delta, R){
+#' OwenQ1(nu=4, t=3, delta=2, R=100)
+#' ptOwen(q=3, nu=4, delta=2)
+OwenQ1 <- function(nu, t, delta, R, jmax=50L, cut.point=8){
   J <- length(delta)
   if(J != length(R)){
     stop("`delta` and `R` must have the same length.")
@@ -34,10 +35,10 @@ OwenQ1 <- function(nu, t, delta, R){
   ab <- ifelse(is.infinite(t), 0, a*b)
   asB <- ifelse(is.infinite(t), sign(t), sign(t)*sqrt(t*t/(nu+t*t)))
   if(nu==1){
-    C <- pnorm(R) - (delta>=0) + 2*OwenT(delta*sB, a) -
+    C <- pnorm(R) - (delta>=0) + 2*.OwenT(delta*sB, a, jmax=jmax, cut.point=cut.point) -
       vapply(seq_len(J), function(i){
-        2*OwenT(R[i], (a*R[i]-delta[i])/R[i]) +
-          2*OwenT(delta[i]*sB, (delta[i]*ab-R[i])/b/delta[i])
+        2*.OwenT(R[i], (a*R[i]-delta[i])/R[i], jmax=jmax, cut.point=cut.point) +
+          2*.OwenT(delta[i]*sB, (delta[i]*ab-R[i])/b/delta[i], jmax=jmax, cut.point=cut.point)
       }, FUN.VALUE=numeric(1L))
     return(C)
   }
@@ -71,10 +72,10 @@ OwenQ1 <- function(nu, t, delta, R){
     }
   }
   if(nu%%2L==1L){
-    C <- pnorm(R) - (delta>=0) + 2*OwenT(delta*sB, a) -
+    C <- pnorm(R) - (delta>=0) + 2*.OwenT(delta*sB, a, jmax=jmax, cut.point=cut.point) -
       vapply(seq_len(J), function(i){
-        2*OwenT(R[i], (a*R[i]-delta[i])/R[i]) +
-          2*OwenT(delta[i]*sB, (delta[i]*ab-R[i])/b/delta[i])
+        2*.OwenT(R[i], (a*R[i]-delta[i])/R[i], jmax=jmax, cut.point=cut.point) +
+          2*.OwenT(delta[i]*sB, (delta[i]*ab-R[i])/b/delta[i], jmax=jmax, cut.point=cut.point)
       }, FUN.VALUE=numeric(1L))
     indices <- seq(2L, n, by=2L)
     return(C + 2*.colSums(H[indices,]+M[indices,], m=length(indices), n=J))

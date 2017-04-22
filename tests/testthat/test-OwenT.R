@@ -1,6 +1,6 @@
 context("OwenT")
 
-test_that("Owen T is symmetric", {
+test_that("Owen T - reflection properties", {
   expect_true(OwenT(2,1) == OwenT(-2,1))
   expect_true(OwenT(2,1) == -OwenT(2,-1))
   expect_true(OwenT(2,0.1) == OwenT(-2,0.1))
@@ -39,6 +39,11 @@ test_that("OwenT(h,Inf)", {
 test_that("OwenT(Inf,a) = 0", {
   a <- 30
   expect_true(OwenT(Inf,a) == 0)
+})
+
+test_that("OwenT is vectorized in h", {
+  h <- c(0,Inf,2); a <- 3
+  expect_identical(OwenT(h,a), c(OwenT(h[1],a),OwenT(h[2],a),OwenT(h[3],a)))
 })
 
 test_that("Relation OwenT Cauchy", {
