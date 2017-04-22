@@ -37,8 +37,9 @@ ptOwen <- function(q, nu, delta=0){
   nu <- as.integer(nu)
   if(nu==2L){
     sB <- sqrt(b)
+    asB <- sign(q)*sqrt(q*q/(nu+q*q))
     return(pnorm(-delta) + sqrt(2*pi) *
-             (a * sB * dnorm(delta*sB) * pnorm(delta*a*sB)))
+             (asB * dnorm(delta*sB) * pnorm(delta*asB)))
   }
   if(nu%%2L==1L){
     sB <- sqrt(b)
@@ -47,8 +48,10 @@ ptOwen <- function(q, nu, delta=0){
       return(C)
     }
     if(nu==3L){
-      return(C + 2 * b * (delta * a * a * sB * dnorm(delta*sB) * pnorm(delta*a*sB)
-                     + a * dnorm(delta) / sqrt(2*pi)))
+      ab <- a*b
+      asB <- sign(q)*sqrt(q*q/(nu+q*q))
+      return(C + 2 * ab * (delta * asB * dnorm(delta*sB) * pnorm(delta*asB)
+                     + exp(-delta*delta/2)/(2*pi)))
     }
     return(C + 2*sum(Ssequences(nu-1, a, b, delta)[seq(2L, nu-1L, by=2L)]))
   }
