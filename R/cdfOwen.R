@@ -27,8 +27,8 @@ pOwen4 <- function(nu, t1, t2, delta1, delta2){
   a1 <- sign(t1)*sqrt(t1*t1/nu)
   b1 <- nu/(nu+t1*t1)
   sB1 <- sqrt(b1)
-  ab1 <- ifelse(is.infinite(t1), 0, a1*b1)
-  asB1 <- ifelse(is.infinite(t1), sign(t1), sign(t1)*sqrt(t1*t1/(nu+t1*t1)))
+  ab1 <- a1*b1
+  asB1 <- sign(t1)*sqrt(t1*t1/(nu+t1*t1))
   a2 <- sign(t2)*sqrt(t2*t2/nu)
   b2 <- nu/(nu+t2*t2)
   sB2 <- sqrt(b2)
