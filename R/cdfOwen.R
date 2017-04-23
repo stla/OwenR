@@ -32,8 +32,8 @@ pOwen4 <- function(nu, t1, t2, delta1, delta2){
   a2 <- sign(t2)*sqrt(t2*t2/nu)
   b2 <- nu/(nu+t2*t2)
   sB2 <- sqrt(b2)
-  ab2 <- ifelse(is.infinite(t2), 0, a2*b2)
-  asB2 <- ifelse(is.infinite(t2), sign(t2), sign(t2)*sqrt(t2*t2/(nu+t2*t2)))
+  ab2 <- a2*b2
+  asB2 <- sign(t2)*sqrt(t2*t2/(nu+t2*t2))
   if(nu==1){
     C1 <- -(delta1>=0) + 2*OwenT(delta1*sB1, a1) -
       vapply(seq_len(J), function(i){
@@ -49,24 +49,23 @@ pOwen4 <- function(nu, t1, t2, delta1, delta2){
   }
   nu <- as.integer(nu)
   n <- nu-1L
-  H1 <- H2 <- M1 <- M2 <- matrix(numeric(n*J), nrow=n)
-  H1[1L,] <- -dnorm(R) * pnorm(a1*R-delta1)
+  H2minusH1 <- M1 <- M2 <- matrix(numeric(n*J), nrow=n)
+  dnormR <- dnorm(R)
+  H2minusH1[1L,] <- -dnormR * (pnorm(a2*R-delta2) - pnorm(a1*R-delta1))
   M1[1L,] <- asB1*dnorm(delta1*sB1)*(pnorm(delta1*asB1)-pnorm((delta1*ab1-R)/sB1))
-  H2[1L,] <- -dnorm(R) * pnorm(a2*R-delta2)
   M2[1L,] <- asB2*dnorm(delta2*sB2)*(pnorm(delta2*asB2)-pnorm((delta2*ab2-R)/sB2))
   if(nu>=3L){
-    H1[2L,] <- R * H1[1L,]
+    H2minusH1[2L,] <- R * H2minusH1[1L,]
     M1[2L,] <- ab1*(delta1*M1[1L,] +
                     dnorm(delta1*sB1)*(dnorm(delta1*asB1)-dnorm((delta1*ab1-R)/sB1)))
-    H2[2L,] <- R * H2[1L,]
     M2[2L,] <- ab2*(delta2*M2[1L,] +
                     dnorm(delta2*sB2)*(dnorm(delta2*asB2)-dnorm((delta2*ab2-R)/sB2)))
     if(nu>=4L){
       A <- numeric(n)
       L1 <- L2 <- matrix(numeric((n-2L)*J), ncol=J)
       A[1L:2L] <- 1
-      L1[1L,] <- ab1 * R * dnorm(R) * dnorm(a1*R-delta1) / 2
-      L2[1L,] <- ab2 * R * dnorm(R) * dnorm(a2*R-delta2) / 2
+      L1[1L,] <- ab1 * R * dnormR * dnorm(a1*R-delta1) / 2
+      L2[1L,] <- ab2 * R * dnormR * dnorm(a2*R-delta2) / 2
       for(k in 3L:n){
         A[k] <- 1/(k-1L)/A[k-1L]
       }
@@ -77,8 +76,7 @@ pOwen4 <- function(nu, t1, t2, delta1, delta2){
         }
       }
       for(k in 3L:n){
-        H1[k,] <- A[k] * R * H1[k-1L,]
-        H2[k,] <- A[k] * R * H2[k-1L,]
+        H2minusH1[k,] <- A[k] * R * H2minusH1[k-1L,]
         M1[k,] <- (k-2L)/(k-1L) *
           (ab1 * A[k-2L] * delta1 * M1[k-1L,] + b1*M1[k-2L,]) - L1[k-2L,]
         M2[k,] <- (k-2L)/(k-1L) *
@@ -99,12 +97,12 @@ pOwen4 <- function(nu, t1, t2, delta1, delta2){
       }, FUN.VALUE=numeric(1L))
     indices <- seq(2L, n, by=2L)
     return(C2-C1 +
-             2*.colSums(H2[indices,]+M2[indices,]-H1[indices,]-M1[indices,],
+             2*.colSums(H2minusH1[indices,]+M2[indices,]-M1[indices,],
                         m=length(indices), n=J))
   }else{
     indices <- seq(1L, n, by=2L)
     return(pnorm(-delta2)-pnorm(-delta1) + sqrt(2*pi) *
-             .colSums(H2[indices,]+M2[indices,]-H1[indices,]-M1[indices,],
+             .colSums(H2minusH1[indices,]+M2[indices,]-M1[indices,],
                       m=length(indices), n=J))
   }
 }
