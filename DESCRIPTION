@@ -6,9 +6,7 @@ Author: Stéphane Laurent
 Maintainer: Stéphane Laurent <laurent_step@yahoo.fr>
 Description: Evaluates the Owen T-function and the Owen Q-function for an integer value of the degrees of freedom.
 License: GPL-3
-Imports: stats,
-    Rcpp
-LinkingTo: Rcpp
+Imports: stats
 Suggests: testthat
 Encoding: UTF-8
 LazyData: true

@@ -89,24 +89,3 @@ OwenQ1 <- function(nu, t, delta, R, jmax=50L, cut.point=8){
   }
 }
 
-#' @useDynLib OwenR
-OwenQ1_Rcpp <- function(nu, t, delta, R, jmax=50L, cut.point=8){
-  J <- length(delta)
-  if(J != length(R)){
-    stop("`delta` and `R` must have the same length.")
-  }
-  if(any(R<0)){
-    stop("`R` must be positive.")
-  }
-  if(isNotPositiveInteger(nu)){
-    stop("`nu` must be an integer >=1.")
-  }
-  if(any(is.infinite(R))){
-    stop("`R` must be finite.")
-  }
-  if(any(is.infinite(delta))){
-    stop("`delta` must be finite.")
-  }
-  RcppOwenQ1(nu, t, delta, R,
-             function(h,a) .OwenT(h, a, jmax=jmax, cut.point=cut.point))
-}
