@@ -35,12 +35,12 @@ pOwen4 <- function(nu, t1, t2, delta1, delta2){
   ab2 <- ifelse(is.infinite(t2), 0, a2*b2)
   asB2 <- ifelse(is.infinite(t2), sign(t2), sign(t2)*sqrt(t2*t2/(nu+t2*t2)))
   if(nu==1){
-    C1 <- pnorm(R) - (delta1>=0) + 2*OwenT(delta1*sB1, a1) -
+    C1 <- -(delta1>=0) + 2*OwenT(delta1*sB1, a1) -
       vapply(seq_len(J), function(i){
         2*OwenT(R[i], (a1*R[i]-delta1[i])/R[i]) +
           2*OwenT(delta1[i]*sB1, (delta1[i]*ab1-R[i])/b1/delta1[i])
       }, FUN.VALUE=numeric(1L))
-    C2 <- pnorm(R) - (delta2>=0) + 2*OwenT(delta2*sB2, a2) -
+    C2 <- -(delta2>=0) + 2*OwenT(delta2*sB2, a2) -
       vapply(seq_len(J), function(i){
         2*OwenT(R[i], (a2*R[i]-delta2[i])/R[i]) +
           2*OwenT(delta2[i]*sB2, (delta2[i]*ab2-R[i])/b2/delta2[i])
@@ -87,12 +87,12 @@ pOwen4 <- function(nu, t1, t2, delta1, delta2){
     }
   }
   if(nu%%2L==1L){
-    C1 <- pnorm(R) - (delta1>=0) + 2*OwenT(delta1*sB1, a1) -
+    C1 <- -(delta1>=0) + 2*OwenT(delta1*sB1, a1) -
       vapply(seq_len(J), function(i){
         2*OwenT(R[i], (a1*R[i]-delta1[i])/R[i]) +
           2*OwenT(delta1[i]*sB1, (delta1[i]*ab1-R[i])/b1/delta1[i])
       }, FUN.VALUE=numeric(1L))
-    C2 <- pnorm(R) - (delta2>=0) + 2*OwenT(delta2*sB2, a2) -
+    C2 <- -(delta2>=0) + 2*OwenT(delta2*sB2, a2) -
       vapply(seq_len(J), function(i){
         2*OwenT(R[i], (a2*R[i]-delta2[i])/R[i]) +
           2*OwenT(delta2[i]*sB2, (delta2[i]*ab2-R[i])/b2/delta2[i])
