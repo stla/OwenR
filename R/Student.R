@@ -37,14 +37,13 @@ ptOwen <- function(q, nu, delta=0, jmax=50L, cut.point=8){
   a <- sign(q)*sqrt(q*q/nu)
   b <- nu/(nu+q*q)
   nu <- as.integer(nu)
+  dsB <- delta*sqrt(b)
   if(nu==1L){
-    dsB <- delta*sqrt(b)
     return(pnorm(-dsB) +
-             2*.OwenT(dsB,a, jmax=jmax, cut.point=cut.point))
+             2*.OwenT(dsB, a, jmax=jmax, cut.point=cut.point))
   }
   n <- nu - 1L
   M <- numeric(n)
-  dsB <- delta*sqrt(b)
   M[1L] <- a * sqrt(b) * dnorm(dsB) * pnorm(a*dsB)
   if(nu>2L){
     M[2L] <- b * (delta * a * M[1L] + a * dnorm(delta) / sqrt(2*pi))
@@ -62,7 +61,6 @@ ptOwen <- function(q, nu, delta=0, jmax=50L, cut.point=8){
     }
   }
   if(nu%%2L==1L){
-    dsB <- delta*sqrt(b)
     C <- pnorm(-dsB) +
       2*.OwenT(dsB,a, jmax=jmax, cut.point=cut.point)
     return(C + 2*sum(M[seq(2L, n, by=2L)]))
